@@ -1,15 +1,34 @@
+using MeetingScheduler.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Adicona os serviços de BD
+builder.Services.AddDbContext<MeetingSchedulerContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("MeetingSchedulerContext")));
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Mais info sobre Swagger https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configura a inicialização do banco de dados
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MeetingSchedulerContext>();
+    await dbContext.Database.MigrateAsync();
+    await dbContext.SeedDataAsync(); 
+}
+
+
+// Inicia o Swagger se o ambiente for de Dev
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

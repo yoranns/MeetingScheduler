@@ -8,9 +8,9 @@ namespace MeetingScheduler.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Meeting> Meetings { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public MeetingSchedulerContext(DbContextOptions<MeetingSchedulerContext> options)
+           : base(options)
         {
-            optionsBuilder.UseSqlite("Data Source=meetingScheduler.db");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +37,24 @@ namespace MeetingScheduler.Data
                           v => v.ToString(),
                           v => (MeetingStatus)Enum.Parse(typeof(MeetingStatus), v));
             });
+        }
+
+        public async Task SeedDataAsync()
+        {
+            if (await Rooms.AnyAsync())
+            {
+                return; // Se já existem salas, não fazemos o seeding novamente.
+            }
+
+            var rooms = new Room[]
+            {
+                new Room { Name = "Sala Alpha", Capacity = 30 },
+                new Room { Name = "Sala Beta", Capacity = 20 },
+                new Room { Name = "Sala Gamma", Capacity = 5 }
+            };
+
+            await Rooms.AddRangeAsync(rooms);
+            await SaveChangesAsync();
         }
     }
 }
