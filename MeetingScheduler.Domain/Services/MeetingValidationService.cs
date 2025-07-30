@@ -47,5 +47,18 @@ namespace MeetingScheduler.Domain.Services
 
             return isValid;
         }
+
+        public bool ValidateMeetingCancellation(Meeting meeting, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (meeting.Status == MeetingStatus.Cancelled)
+            {
+                errorMessage = "- A reunião já foi cancelada.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

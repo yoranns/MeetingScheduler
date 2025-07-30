@@ -71,7 +71,7 @@ namespace MeetingScheduler.API.Controllers
             var scheduledMeetings = await _meetingDataService.ScheduledMeetingsByRoomAsync(meeting.RoomId);
             if (!_roomValidationService.IsRoomAvailable(meeting.RoomId, meeting.StartTime, meeting.EndTime, scheduledMeetings))
             {
-                return BadRequest("A sala não está disponível no horário solicitado.");
+                return BadRequest("- A sala não está disponível no horário solicitado.");
             }
 
             _context.Add(meeting);
@@ -79,6 +79,29 @@ namespace MeetingScheduler.API.Controllers
 
             return CreatedAtAction(nameof(GetMeeting), new { id = meeting.Id }, meeting);
         }
+        /// <summary>
+        /// Cancela a reunião identificada pelo id informado
+        /// </summary>
+        /// <param name="id">Id da reunião</param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> CancelMeeting(int id)
+        {
+            var meeting = await _context.Meetings.FindAsync(id);
+            if (meeting == null)
+            {
+                return NotFound();
+            }
 
+            if(!_meetingValidationService.ValidateMeetingCancellation(meeting, out var errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
+            meeting.Status = MeetingStatus.Cancelled;
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // Retorna 204 No Content para indicar que a operação foi bem-sucedida
+        }
     }
 }

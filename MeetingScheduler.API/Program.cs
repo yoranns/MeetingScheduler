@@ -1,6 +1,7 @@
 using MeetingScheduler.Data;
 using MeetingScheduler.Data.Services;
 using MeetingScheduler.Domain.Interfaces;
+using MeetingScheduler.Domain.Providers;
 using MeetingScheduler.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -22,6 +23,8 @@ builder.Services.AddControllers()
         // Configuração do JSON para ignorar ciclos de referência
         //!! Projetos mais sofisticados requerem soluções mais robustas para esse caso !!
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        // Conversor para mostrar o status da reunião como string
+        options.JsonSerializerOptions.Converters.Add(new MeetingStatusJsonConverter());
     });
 // Mais info sobre Swagger https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
