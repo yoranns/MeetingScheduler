@@ -1,4 +1,5 @@
 ﻿using MeetingScheduler.Data;
+using MeetingScheduler.Domain.Interfaces;
 using MeetingScheduler.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,14 @@ namespace MeetingScheduler.API.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        private readonly MeetingSchedulerContext _context;
+        private readonly IRoomDataService _roomDataService;
         /// <summary>
         /// Construtor do controlador da entidade Room (sala)
         /// </summary>
-        /// <param name="context">Contexto de agendamento de reuinão que permite I/0 no BD</param>
-        public RoomsController(MeetingSchedulerContext context)
+        /// <param name="roomDataService">Serviço que busca dados da entidade Room (sala)</param>
+        public RoomsController(IRoomDataService roomDataService)
         {
-            _context = context;
+            _roomDataService = roomDataService;
         }
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace MeetingScheduler.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Room>>> GetAllRooms()
         {
-            var rooms = await _context.Rooms.Include(r => r.Meetings).ToArrayAsync();
+            var rooms = await _roomDataService.GetAllRooms();
 
             return Ok(rooms);
         }

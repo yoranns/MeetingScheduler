@@ -15,6 +15,7 @@ builder.Services.AddDbContext<MeetingSchedulerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MeetingSchedulerContext")));
 builder.Services.AddScoped<IMeetingDataService, MeetingDataService>();
 builder.Services.AddScoped<IMeetingValidationService, MeetingValidationService>();
+builder.Services.AddScoped<IRoomDataService, RoomDataService>();
 builder.Services.AddScoped<IRoomValidationService, RoomValidationService>();
 
 builder.Services.AddControllers()

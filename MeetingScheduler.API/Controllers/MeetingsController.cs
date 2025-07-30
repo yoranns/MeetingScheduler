@@ -1,9 +1,8 @@
 ﻿using MeetingScheduler.Data;
-using MeetingScheduler.Data.Services;
 using MeetingScheduler.Domain.Interfaces;
 using MeetingScheduler.Domain.Models;
+using MeetingScheduler.Domain.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace MeetingScheduler.API.Controllers
 {
@@ -14,23 +13,24 @@ namespace MeetingScheduler.API.Controllers
     [ApiController]
     public class MeetingsController : ControllerBase
     {
-        private readonly MeetingSchedulerContext _context;
-        private readonly IMeetingValidationService _meetingValidationService;
         private readonly IMeetingDataService _meetingDataService;
+        private readonly IMeetingValidationService _meetingValidationService;
+        private readonly IRoomDataService _roomDataService;
         private readonly IRoomValidationService _roomValidationService;
+        
         /// <summary>
         /// Construtor do controlador da entidade Meeting (reunião)
         /// </summary>
-        /// <param name="context">Contexto de agendamento de reuinão que permite I/0 no BD</param>
         /// <param name="meetingDataService">Serviço que busca dados da entidade Meeting (reunião)</param>
         /// <param name="meetingValidationService">Serviço que permite validação da entidade Meeting (reunião)</param>
+        /// <param name="roomDataService">Serviço que busca dados da entidade Room (sala)</param>
         /// <param name="roomValidationService">Serviço que permite validação da entidade Room (sala)</param>
-        public MeetingsController(MeetingSchedulerContext context, IMeetingValidationService meetingValidationService, IMeetingDataService meetingDataService,
-            IRoomValidationService roomValidationService)
+        public MeetingsController(IMeetingDataService meetingDataService, IMeetingValidationService meetingValidationService, 
+            IRoomDataService roomDataService, IRoomValidationService roomValidationService)
         {
-            _context = context;
-            _meetingValidationService = meetingValidationService;
             _meetingDataService = meetingDataService;
+            _meetingValidationService = meetingValidationService;
+            _roomDataService = roomDataService;
             _roomValidationService = roomValidationService;
         }
 
@@ -42,9 +42,7 @@ namespace MeetingScheduler.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Meeting>> GetMeeting(int id)
         {
-            var meeting = await _context.Meetings.
-                Include(m => m.Room).
-                FirstOrDefaultAsync(m => m.Id == id);
+            var meeting = await _meetingDataService.GetMeetingAsync(id);
 
             if (meeting == null)
             {
@@ -60,24 +58,38 @@ namespace MeetingScheduler.API.Controllers
         /// <param name="meeting">Dados da reunião a registrar</param>
         /// <returns>A reunião inserida</returns>
         [HttpPost]
-        public async Task<ActionResult<Meeting>> ScheduleMeeting(Meeting meeting)
+        public async Task<ActionResult<Meeting>> ScheduleMeeting(MeetingInputDTO meeting)
         {
-            meeting.Room = _context.Rooms.FindAsync(meeting.RoomId).Result;
-            if (!_meetingValidationService.ValidateMeeting(meeting, out var errorMessage))
+            var meetingModel = new Meeting
+            {
+                Title = meeting.Title,
+                RoomId = meeting.RoomId,
+                Room = await _roomDataService.GetRoom(meeting.RoomId),
+                StartTime = meeting.StartTime,
+                EndTime = meeting.EndTime,
+                ParticipantCount = meeting.ParticipantCount,
+                Organizer = meeting.Organizer
+            };
+
+            if (!_meetingValidationService.ValidateMeeting(meetingModel, out var errorMessage))
             {
                 return BadRequest(errorMessage);
             }
             
-            var scheduledMeetings = await _meetingDataService.ScheduledMeetingsByRoomAsync(meeting.RoomId);
-            if (!_roomValidationService.IsRoomAvailable(meeting.RoomId, meeting.StartTime, meeting.EndTime, scheduledMeetings))
+            var scheduledMeetings = await _meetingDataService.GetScheduledMeetingsByRoomAsync(meeting.RoomId);
+            if (!_roomValidationService.IsRoomAvailable(meeting.RoomId, meeting.StartTime, meeting.EndTime, scheduledMeetings, out var errorMesseage))
             {
-                return BadRequest("- A sala não está disponível no horário solicitado.");
+                return BadRequest(errorMesseage);
             }
 
-            _context.Add(meeting);
-            await _context.SaveChangesAsync();
+            await _meetingDataService.AddMeeting(meetingModel);
+            
+            var actionResult = CreatedAtAction(nameof(GetMeeting), new { id = meetingModel.Id, setRoomMeetingsNull = true }, meetingModel);
 
-            return CreatedAtAction(nameof(GetMeeting), new { id = meeting.Id }, meeting);
+            // Para garantir que não venha registros incompletos por conta da configuração IgnoreCycles no Program.cs
+            meetingModel.Room.Meetings = null;
+
+            return actionResult;
         }
 
         /// <summary>
@@ -88,11 +100,7 @@ namespace MeetingScheduler.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Meeting>>> GetScheduledMeetingsByDate([FromQuery] DateTime date)
         {
-            var scheduledMeetings = await _context.Meetings
-                .Include(m => m.Room)
-                .Where(m => m.Status == MeetingStatus.Scheduled &&
-                            m.StartTime.Date == date.Date)
-                .ToListAsync();
+            var scheduledMeetings = await _meetingDataService.GetScheduledMeetingsByDate(date);
 
             // Para garantir que não venha registros incompletos por conta da configuração IgnoreCycles no Program.cs
             scheduledMeetings.ForEach(m => m.Room.Meetings = null);
@@ -108,7 +116,7 @@ namespace MeetingScheduler.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> CancelMeeting(int id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
+            var meeting = await _meetingDataService.GetMeetingAsync(id);
             if (meeting == null)
             {
                 return NotFound();
@@ -120,9 +128,9 @@ namespace MeetingScheduler.API.Controllers
             }
 
             meeting.Status = MeetingStatus.Cancelled;
-            await _context.SaveChangesAsync();
+            await _meetingDataService.UpdateMeeting(meeting);
 
-            return NoContent(); // Retorna 204 No Content para indicar que a operação foi bem-sucedida
+            return Ok();
         }
     }
 }
