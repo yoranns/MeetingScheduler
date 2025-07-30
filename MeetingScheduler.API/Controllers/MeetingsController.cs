@@ -79,6 +79,27 @@ namespace MeetingScheduler.API.Controllers
 
             return CreatedAtAction(nameof(GetMeeting), new { id = meeting.Id }, meeting);
         }
+
+        /// <summary>
+        /// Retorna as reuniões agendadas para uma data específica
+        /// </summary>
+        /// <param name="date">Data para buscar as reuniões agendadas (formato: yyyy-MM-dd)</param>
+        /// <returns>Uma lista de reuniões agendadas da data especificada</returns>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Meeting>>> GetScheduledMeetingsByDate([FromQuery] DateTime date)
+        {
+            var scheduledMeetings = await _context.Meetings
+                .Include(m => m.Room)
+                .Where(m => m.Status == MeetingStatus.Scheduled &&
+                            m.StartTime.Date == date.Date)
+                .ToListAsync();
+
+            // Para garantir que não venha registros incompletos por conta da configuração IgnoreCycles no Program.cs
+            scheduledMeetings.ForEach(m => m.Room.Meetings = null);
+
+            return Ok(scheduledMeetings);
+        }
+
         /// <summary>
         /// Cancela a reunião identificada pelo id informado
         /// </summary>
