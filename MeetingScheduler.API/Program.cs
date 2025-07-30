@@ -1,4 +1,5 @@
 using MeetingScheduler.Data;
+using MeetingScheduler.Data.Services;
 using MeetingScheduler.Domain.Interfaces;
 using MeetingScheduler.Domain.Services;
 using Microsoft.EntityFrameworkCore;
@@ -6,12 +7,22 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 // Adicona os serviços e contextos de BD
 builder.Services.AddDbContext<MeetingSchedulerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MeetingSchedulerContext")));
+builder.Services.AddScoped<IMeetingDataService, MeetingDataService>();
 builder.Services.AddScoped<IMeetingValidationService, MeetingValidationService>();
+builder.Services.AddScoped<IRoomValidationService, RoomValidationService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Configuração do JSON para ignorar ciclos de referência
+        //!! Projetos mais sofisticados requerem soluções mais robustas para esse caso !!
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 // Mais info sobre Swagger https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

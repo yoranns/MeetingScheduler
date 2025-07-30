@@ -11,7 +11,17 @@ namespace MeetingScheduler.Domain.Services
             var isValid = true;
 
             var duration = meeting.EndTime - meeting.StartTime;
-            if (duration < TimeSpan.FromMinutes(30))
+            if (meeting.EndTime < meeting.StartTime)
+            {
+                errorMessage = "- Duração da reuinão inválida, o momento de termino deve ser maior que o de início.";
+                isValid = false;
+            }
+            else if(meeting.StartTime < DateTime.Now || meeting.EndTime < DateTime.Now)
+            {
+                errorMessage = "- Duração da reuinão inválida, o momento de início e de termino devem ser maiores que o horário atual.";
+                isValid = false;
+            }
+            else if (duration < TimeSpan.FromMinutes(30))
             {
                 errorMessage = "- A duração da reunião não pode ser menor que 30 minutos.";
                 isValid = false;

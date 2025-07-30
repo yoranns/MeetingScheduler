@@ -29,7 +29,8 @@ namespace MeetingScheduler.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Room>>> GetAllRooms()
         {
-            var rooms = await _context.Rooms.ToListAsync();
+            var rooms = await _context.Rooms.Include(r => r.Meetings).ToArrayAsync();
+
             return Ok(rooms);
         }
 

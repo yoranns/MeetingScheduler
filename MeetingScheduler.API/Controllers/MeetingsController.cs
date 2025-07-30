@@ -1,7 +1,9 @@
 ﻿using MeetingScheduler.Data;
+using MeetingScheduler.Data.Services;
 using MeetingScheduler.Domain.Interfaces;
 using MeetingScheduler.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetingScheduler.API.Controllers
 {
@@ -14,26 +16,36 @@ namespace MeetingScheduler.API.Controllers
     {
         private readonly MeetingSchedulerContext _context;
         private readonly IMeetingValidationService _meetingValidationService;
+        private readonly IMeetingDataService _meetingDataService;
+        private readonly IRoomValidationService _roomValidationService;
         /// <summary>
         /// Construtor do controlador da entidade Meeting (reunião)
         /// </summary>
         /// <param name="context">Contexto de agendamento de reuinão que permite I/0 no BD</param>
-        /// <param name="meetingValidationService">Serviço que permite validação da entidade Meeting (reunião) </param>
-        public MeetingsController(MeetingSchedulerContext context, IMeetingValidationService meetingValidationService)
+        /// <param name="meetingDataService">Serviço que busca dados da entidade Meeting (reunião)</param>
+        /// <param name="meetingValidationService">Serviço que permite validação da entidade Meeting (reunião)</param>
+        /// <param name="roomValidationService">Serviço que permite validação da entidade Room (sala)</param>
+        public MeetingsController(MeetingSchedulerContext context, IMeetingValidationService meetingValidationService, IMeetingDataService meetingDataService,
+            IRoomValidationService roomValidationService)
         {
             _context = context;
             _meetingValidationService = meetingValidationService;
+            _meetingDataService = meetingDataService;
+            _roomValidationService = roomValidationService;
         }
 
         /// <summary>
         /// Retorna a reuinão identificada pelo id informado
         /// </summary>
         /// <param name="id">Id da reunião</param>
-        /// <returns></returns>
+        /// <returns>A reunião obtida</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Meeting>> GetMeeting(int id)
         {
-            var meeting = await _context.Meetings.FindAsync(id);
+            var meeting = await _context.Meetings.
+                Include(m => m.Room).
+                FirstOrDefaultAsync(m => m.Id == id);
+
             if (meeting == null)
             {
                 return NotFound();
@@ -46,13 +58,20 @@ namespace MeetingScheduler.API.Controllers
         /// Registra uma reunião caso cumpra a validação
         /// </summary>
         /// <param name="meeting">Dados da reunião a registrar</param>
-        /// <returns></returns>
+        /// <returns>A reunião inserida</returns>
         [HttpPost]
         public async Task<ActionResult<Meeting>> ScheduleMeeting(Meeting meeting)
         {
+            meeting.Room = _context.Rooms.FindAsync(meeting.RoomId).Result;
             if (!_meetingValidationService.ValidateMeeting(meeting, out var errorMessage))
             {
                 return BadRequest(errorMessage);
+            }
+            
+            var scheduledMeetings = await _meetingDataService.ScheduledMeetingsByRoomAsync(meeting.RoomId);
+            if (!_roomValidationService.IsRoomAvailable(meeting.RoomId, meeting.StartTime, meeting.EndTime, scheduledMeetings))
+            {
+                return BadRequest("A sala não está disponível no horário solicitado.");
             }
 
             _context.Add(meeting);
