@@ -1,12 +1,15 @@
 using MeetingScheduler.Data;
+using MeetingScheduler.Domain.Interfaces;
+using MeetingScheduler.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Adicona os serviços de BD
+// Adicona os serviços e contextos de BD
 builder.Services.AddDbContext<MeetingSchedulerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("MeetingSchedulerContext")));
+builder.Services.AddScoped<IMeetingValidationService, MeetingValidationService>();
 
 builder.Services.AddControllers();
 // Mais info sobre Swagger https://aka.ms/aspnetcore/swashbuckle

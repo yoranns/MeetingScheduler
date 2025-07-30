@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace MeetingScheduler.API.Controllers
 {
     /// <summary>
-    /// Controlador da entidade Room
+    /// Controlador da entidade Room (sala)
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -14,7 +14,7 @@ namespace MeetingScheduler.API.Controllers
     {
         private readonly MeetingSchedulerContext _context;
         /// <summary>
-        /// Construtor do controlador da entidade Room
+        /// Construtor do controlador da entidade Room (sala)
         /// </summary>
         /// <param name="context">Contexto de agendamento de reuinão que permite I/0 no BD</param>
         public RoomsController(MeetingSchedulerContext context)

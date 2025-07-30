@@ -29,6 +29,7 @@ namespace MeetingScheduler.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired();
+                entity.Property(e => e.RoomId).IsRequired();
                 entity.Property(e => e.StartTime);
                 entity.Property(e => e.EndTime);
                 entity.Property(e => e.Organizer).IsRequired();
