@@ -75,3 +75,9 @@ services:
 - **Documentação Swagger**: Enriquecer a documentação Swagger com mais exemplos e descrições.
 - **Adição de mais DTOs**: como exposto anteriormente, foram usados modelos de entidade em vários pontos do código e ativada a configuração para ignorar ciclos de referência no serializador Json, porém, em um projeto aplicado a produção isso não seria uma boa descisão, sendo necessário criar mais DTOs para utilizar como I/O de vários métodos.
 - **Adição de mais casos de teste**: seria necessária a crição de mais casos de teste para abarcar toda a extensão do código. 
+
+
+
+### -
+- **Tempo utilizado do total disponível**: 58h
+- **Tempo total de trabalho**: 18h aproximadamente
