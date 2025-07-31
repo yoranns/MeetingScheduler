@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36310.24 d17.14
+VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingScheduler.API", "MeetingScheduler.API\MeetingScheduler.API.csproj", "{348AD160-7172-4478-88E7-22FA76DAC97F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingScheduler.Domain", "MeetingScheduler.Domain\MeetingScheduler.Domain.csproj", "{BFA1B1F0-1637-4B6C-B6CA-9860B1607484}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingScheduler.Data", "MeetingScheduler.Data\MeetingScheduler.Data.csproj", "{3E93F1E5-DF66-4579-94F9-7BD451ABBD73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingScheduler.Test", "MeetingScheduler.Test\MeetingScheduler.Test.csproj", "{59ACC035-413D-4E69-831F-207CB48AABDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{3E93F1E5-DF66-4579-94F9-7BD451ABBD73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E93F1E5-DF66-4579-94F9-7BD451ABBD73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E93F1E5-DF66-4579-94F9-7BD451ABBD73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59ACC035-413D-4E69-831F-207CB48AABDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59ACC035-413D-4E69-831F-207CB48AABDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59ACC035-413D-4E69-831F-207CB48AABDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59ACC035-413D-4E69-831F-207CB48AABDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

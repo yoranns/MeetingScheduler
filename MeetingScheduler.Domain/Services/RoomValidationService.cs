@@ -10,7 +10,7 @@ namespace MeetingScheduler.Domain.Services
 {
     public class RoomValidationService : IRoomValidationService
     {
-        public bool IsRoomAvailable(int roomId, DateTime startTime, DateTime endTime, IEnumerable<Meeting> scheduledMeetings, out string errorMessage)
+        public bool IsRoomAvailable(DateTime startTime, DateTime endTime, IEnumerable<Meeting> scheduledMeetings, out string errorMessage)
         {
             errorMessage = string.Empty;
 

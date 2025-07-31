@@ -4,6 +4,6 @@ namespace MeetingScheduler.Domain.Interfaces
 {
     public interface IRoomValidationService
     {
-        bool IsRoomAvailable(int roomId, DateTime startTime, DateTime endTime, IEnumerable<Meeting> scheduledMeetings, out string errorMesseage);
+        bool IsRoomAvailable(DateTime startTime, DateTime endTime, IEnumerable<Meeting> scheduledMeetings, out string errorMesseage);
     }
 }

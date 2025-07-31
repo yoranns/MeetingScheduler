@@ -28,9 +28,9 @@ namespace MeetingScheduler.API.Controllers
         /// </summary>
         /// <returns>Uma lista de todas as salas</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetAllRooms()
+        public async Task<ActionResult<IEnumerable<Room>>> GetAllRoomsAsync()
         {
-            var rooms = await _roomDataService.GetAllRooms();
+            var rooms = await _roomDataService.GetAllRoomsAsync();
 
             return Ok(rooms);
         }

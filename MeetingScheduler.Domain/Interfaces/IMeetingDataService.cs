@@ -5,10 +5,10 @@ namespace MeetingScheduler.Domain.Interfaces
 {
     public interface IMeetingDataService
     {
-        Task AddMeeting(Meeting meeting);
-        Task UpdateMeeting(Meeting meeting);
+        Task AddMeetingAsync(Meeting meeting);
+        Task UpdateMeetingAsync(Meeting meeting);
         Task<Meeting?> GetMeetingAsync(int id);
         Task<IEnumerable<Meeting>> GetScheduledMeetingsByRoomAsync(int roomId);
-        Task<List<Meeting>> GetScheduledMeetingsByDate(DateTime date);
+        Task<List<Meeting>> GetScheduledMeetingsByDateAsync(DateTime date);
     }
 }

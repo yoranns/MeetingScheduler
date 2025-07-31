@@ -12,12 +12,12 @@ namespace MeetingScheduler.Data.Services
         {
             _context = context;
         }
-        public async Task<Room?> GetRoom(int id)
+        public async Task<Room?> GetRoomAsync(int id)
         {
             return await _context.Rooms.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Room>> GetAllRooms()
+        public async Task<IEnumerable<Room>> GetAllRoomsAsync()
         {
             return await _context.Rooms.Include(r => r.Meetings).ToArrayAsync();
         }

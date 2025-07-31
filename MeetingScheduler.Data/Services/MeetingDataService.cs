@@ -14,12 +14,12 @@ namespace MeetingScheduler.Data.Services
             _context = context;
         }
 
-        public async Task AddMeeting(Meeting meeting)
+        public async Task AddMeetingAsync(Meeting meeting)
         {
             _context.Add(meeting);
             await _context.SaveChangesAsync();
         }
-        public async Task UpdateMeeting(Meeting meeting)
+        public async Task UpdateMeetingAsync(Meeting meeting)
         {
             _context.Update(meeting);
             await _context.SaveChangesAsync();
@@ -38,7 +38,7 @@ namespace MeetingScheduler.Data.Services
                 .ToArrayAsync();
         }
 
-        public async Task<List<Meeting>> GetScheduledMeetingsByDate(DateTime date)
+        public async Task<List<Meeting>> GetScheduledMeetingsByDateAsync(DateTime date)
         {
             return await _context.Meetings
                      .Include(m => m.Room)
